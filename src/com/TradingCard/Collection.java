@@ -1,48 +1,65 @@
 package com.TradingCard;
-import java.util.Scanner;
+import java.util.Comparator;
 import java.util.ArrayList;
 
 public class Collection {
-  private ArrayList<Card> cards;
+    private final ArrayList<Card> cards;
 
-  public Collection(){
-  cards = new ArrayList<>();
-  }
+    public Collection(){
+        this.cards = new ArrayList<>();
+    }
 
-  public void addCard(){
-  Card newCard = new Card();
-
-        System.out.println("Enter card name: ");
-        String cardName = scanner.nextString();
-
-        System.out.println("Enter rarity: ");
-        String cardRarity = scanner.nextString();
-
-        if (cardRarity == Rare || cardRarity == Legendary){
-        System.out.println("Enter variation: ");
-        String cardVariation = scanner.nextString();
+    public void addCard(Card c){
+        Card existing = findByCardName(c.getName());
+        if (existing == null) {
+            cards.add(c);
+        } else if (existing.equals(c)) {
+            existing.incrementCount();
         } else {
-        String cardVariation = "Rare";
+            throw new IllegalArgumentException("Card with same name but different attributes exists.");
         }
-        System.out.println("Enter card value: ");
-        BigDecimal cardValue = scanner.nextBigDecimal();
-        scanner.nextLine();
+    }
 
-        newCard.setName(cardRarity);
-        newCard.setRarity(cardRarity);
-        newCard.setVariation(cardVariation);
-        newCard.setValue(cardValue);
-
-        cards.add(newCard);
-  }
-
-  public void viewCollection(){
-    for (int i = 0; i < cards.size(); i++) {
-            System.out.println("Card #" + (i + 1));
-            System.out.println("Name: " + cards.get(i).getName());
-            System.out.println("Rarity: " + cards.get(i).getRarity());
-            System.out.println("Variation: " + cards.get(i).getVariation());
-            System.out.println("Value: " + cards.get(i).getValue());
-            System.out.println("Count: " + cards.get(i).getCount());
+    public Card findByCardName(String name) {
+        String query = name.trim().toLowerCase();
+        for (Card card : cards) {
+            if (card.getName().trim().toLowerCase().equals(query)) {
+                return card;
+            }
         }
+        return null;
+    }
+
+
+    public void incrementCard(String name) {
+        Card card = findByCardName(name);
+        if (card == null) {
+            throw new IllegalArgumentException("Card not found.");
+        }
+        card.incrementCount();
+    }
+
+    public void decrementCard(String name) {
+        Card card = findByCardName(name);
+        if (card == null) {
+            throw new IllegalArgumentException("Card not found.");
+        }
+        card.decrementCount();
+    }
+
+    public void viewCollection(){
+        System.out.println("\n\nCollection:");
+        ArrayList<Card> copy = getSortedCopy();
+        for(Card card: copy) {
+            if (card.getCount() != 0) {
+                System.out.println(card);
+            }
+        }
+    }
+
+    public ArrayList<Card> getSortedCopy() {
+        ArrayList<Card> sortedCopy = new ArrayList<>(this.cards);
+        sortedCopy.sort(Comparator.comparing(Card::getName));
+        return sortedCopy;
+    }
 }
