@@ -3,15 +3,12 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Collection {
-  private ArrayList<Card> cards;
-
-  public Collection(){
-  cards = new ArrayList<>();
-  }
-
-  public void addCard(){
-  Card newCard = new Card();
-
+    private ArrayList<Card> cards;
+    public Collection(){cards = new ArrayList<>();
+                       }
+    
+    public void addCard(){
+        Card newCard = new Card();
         System.out.println("Enter card name: ");
         String cardName = scanner.nextString();
 
@@ -37,12 +34,12 @@ public class Collection {
   }
 
   public void viewCollection(){
-    for (int i = 0; i < cards.size(); i++) {
-            System.out.println("Card #" + (i + 1));
-            System.out.println("Name: " + cards.get(i).getName());
-            System.out.println("Rarity: " + cards.get(i).getRarity());
-            System.out.println("Variation: " + cards.get(i).getVariation());
-            System.out.println("Value: " + cards.get(i).getValue());
-            System.out.println("Count: " + cards.get(i).getCount());
-        }
+      for (int i = 0; i < cards.size(); i++) {
+          System.out.println("Card #" + (i + 1));
+          System.out.println("Name: " + cards.get(i).getName());
+          System.out.println("Rarity: " + cards.get(i).getRarity());
+          System.out.println("Variation: " + cards.get(i).getVariation());
+          System.out.println("Value: " + cards.get(i).getValue());
+          System.out.println("Count: " + cards.get(i).getCount());
+      }
 }
