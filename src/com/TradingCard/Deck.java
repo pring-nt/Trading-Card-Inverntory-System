@@ -68,9 +68,7 @@ public class Deck {
         return target;
     }
 
-    public ArrayList<Card> getSortedCopy() {
-        ArrayList<Card> sortedCopy = new ArrayList<>(this.cards);
-        sortedCopy.sort(Comparator.comparing(Card::getName));
-        return sortedCopy;
+    public ArrayList<Card> getCopyOfCards() {
+        return new ArrayList<>(this.cards);
     }
 }

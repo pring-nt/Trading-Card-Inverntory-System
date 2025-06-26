@@ -1,4 +1,4 @@
-package com.TradingCard;
+package com.TradingCard.Enums;
 
 public enum Variation {
     NORMAL,

@@ -1,23 +1,35 @@
-package com.TradingCard;
-
+package com.System;
+import com.TradingCard.*;
 import java.math.BigDecimal;
 import java.util.*;
 
 public class InventorySystem {
-    private final Collection collection;
+    private final CardCollection cardCollection;
     private final ArrayList<Deck> decks;
     private final ArrayList<Binder> binders;
 
     public InventorySystem() {
-        this.collection = new Collection();
+        this.cardCollection = new CardCollection();
         this.decks = new ArrayList<>();
         this.binders = new ArrayList<>();
+    }
+
+    public CardCollection getCardCollection() {
+        return cardCollection;
+    }
+
+    public ArrayList<Deck> getDecks() {
+        return decks;
+    }
+
+    public ArrayList<Binder> getBinders() {
+        return binders;
     }
 
     private void returnCardsToCollection(ArrayList<Card> cards) {
         for (Card c : cards) {
             if (c != null) {
-                this.collection.addCard(c);
+                this.cardCollection.addCard(c);
             }
         }
     }
@@ -81,11 +93,11 @@ public class InventorySystem {
 
     public boolean addCardToBinder(String binderName, String cardName) {
         Binder tBinder = findBinderByName(binderName);
-        Card tCard = this.collection.removeCardByName(cardName);
+        Card tCard = this.cardCollection.removeCardByName(cardName);
         if(!tBinder.addCard(tCard)) {
             // rollback extraction
             // rethrow a clearer exception for higher layers
-            this.collection.addCard(tCard);
+            this.cardCollection.addCard(tCard);
             throw new IllegalStateException("unable to add to binder because it is full");
         }
         return true;
@@ -100,10 +112,10 @@ public class InventorySystem {
 
     public void addCardToDeck(String deckName, String cardName) {
         Deck tDeck = findDeckByName(deckName);
-        Card tCard = collection.removeCardByName(cardName);  // throws on error
+        Card tCard = cardCollection.removeCardByName(cardName);  // throws on error
         if (!tDeck.addCard(tCard)) {
             // rollback
-            collection.addCard(tCard);
+            cardCollection.addCard(tCard);
             throw new IllegalStateException("unable to add to deck (full or duplicate)");
         }
     }
@@ -116,12 +128,12 @@ public class InventorySystem {
         BigDecimal diff = incomingCard.getValue().subtract(outgoingCard.getValue()).abs();
         if (diff.compareTo(BigDecimal.ONE) >= 0 && !force) { // Compare the difference to 1 and if trade is not forced
             // Cancel
-            this.collection.removeCardByName(incomingCard.getName()); //Roll back
+            this.cardCollection.removeCardByName(incomingCard.getName()); //Roll back
             tBinder.addCard(outgoingCard);
             return false; // return false to prompt user if they want to continue trade
         }
 
-        Card tradeCard = this.collection.removeCardByName(incomingCard.getName());
+        Card tradeCard = this.cardCollection.removeCardByName(incomingCard.getName());
         tBinder.addCard(tradeCard);
         return true; // Trade successful
     }
@@ -142,7 +154,15 @@ public class InventorySystem {
         return deckNames;
     }
 
+    public ArrayList<String> getCardNamesInCollection() {
+        ArrayList<String> collectionNames = new ArrayList<>();
+        for (Card card : this.cardCollection.getSortedCopy())  {
+            collectionNames.add(card.getName());
+        }
+        return collectionNames;
+    }
+
     public void addCardToCollection(Card c) {
-        this.collection.addCard(c);
+        this.cardCollection.addCard(c);
     }
 }

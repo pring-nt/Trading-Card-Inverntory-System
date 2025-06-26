@@ -3,10 +3,10 @@ import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
-public class Collection {
+public class CardCollection {
     private final ArrayList<Card> cards;
 
-    public Collection(){
+    public CardCollection(){
         this.cards = new ArrayList<>();
     }
 
@@ -66,16 +66,6 @@ public class Collection {
         }
         if (card.getCount() > 0) {
             card.decrementCount();
-        }
-    }
-
-    public void viewCollection(){
-        System.out.println("\n\nCollection:");
-        ArrayList<Card> copy = getSortedCopy();
-        for(Card card: copy) {
-            if (card.getCount() != 0) {
-                System.out.println(card);
-            }
         }
     }
 

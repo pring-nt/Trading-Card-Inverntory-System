@@ -1,5 +1,6 @@
 package com.TradingCard;
 
+import com.TradingCard.Enums.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
