@@ -79,7 +79,7 @@ public class View {
         ArrayList<Card> cards = c.getSortedCopy();
         System.out.println("\n=== collection ===");
         for (Card card : cards) {
-            System.out.println("  - " + card.getName() + " count: " + card.getCount());
+            System.out.println("  - card: " + card.getName() + ", count: " + card.getCount());
         }
     }
 
