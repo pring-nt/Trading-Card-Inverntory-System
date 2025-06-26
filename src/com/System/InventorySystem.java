@@ -4,38 +4,34 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class InventorySystem {
-    private final CardCollection cardCollection;
-    private final ArrayList<Deck> decks;
-    private final ArrayList<Binder> binders;
+    private final CardCollection CARD_COLLECTION;
+    private final ArrayList<Deck> DECKS;
+    private final ArrayList<Binder> BINDERS;
 
     public InventorySystem() {
-        this.cardCollection = new CardCollection();
-        this.decks = new ArrayList<>();
-        this.binders = new ArrayList<>();
+        this.CARD_COLLECTION = new CardCollection();
+        this.DECKS = new ArrayList<>();
+        this.BINDERS = new ArrayList<>();
     }
 
     public CardCollection getCardCollection() {
-        return cardCollection;
+        return CARD_COLLECTION;
     }
 
-    public ArrayList<Deck> getDecks() {
-        return decks;
-    }
-
-    public ArrayList<Binder> getBinders() {
-        return binders;
+    public Card findCardByNameInCollection(String name) {
+        return this.CARD_COLLECTION.findByCardName(name);
     }
 
     private void returnCardsToCollection(ArrayList<Card> cards) {
-        for (Card c : cards) {
-            if (c != null) {
-                this.cardCollection.addCard(c);
+        for (Card card : cards) {
+            if (card != null) {
+                addCardToCollection(card);
             }
         }
     }
 
     public Binder findBinderByName(String name) {
-        for (Binder binder: this.binders) {
+        for (Binder binder: this.BINDERS) {
             if (binder.getName().equalsIgnoreCase(name))
                 return binder;
         }
@@ -43,104 +39,96 @@ public class InventorySystem {
     }
 
     public Deck findDeckByName(String name) {
-        for (Deck deck: this.decks) {
+        for (Deck deck: this.DECKS) {
             if (deck.getName().equalsIgnoreCase(name))
                 return deck;
         }
         throw new NoSuchElementException("deck \"" + name + "\" not found");
     }
 
-    public Binder createBinder(String name) {
-        Binder existing = findBinderByName(name);
-        if (existing != null) {
-            throw new IllegalStateException("binder with the name: " + name + " already exists!");
+    public void createBinder(String name) {
+        for (Binder b : this.BINDERS) {
+            if (b.getName().equalsIgnoreCase(name))
+                throw new IllegalStateException("binder \"" + name + "\" already exists");
         }
         Binder binder = new Binder(name);
-        this.binders.add(binder);
-        return binder;
+        this.BINDERS.add(binder);
     }
 
-    public boolean deleteBinder(String name) {
+    public void deleteBinder(String name) {
         Binder target = findBinderByName(name);
         returnCardsToCollection(target.removeAllCards());
-        this.binders.remove(target);
-        return true;
+        this.BINDERS.remove(target);
     }
 
-    public Deck createDeck(String name) {
-        for (Deck d : decks) {
+    public void createDeck(String name) {
+        for (Deck d : this.DECKS) {
             if (d.getName().equalsIgnoreCase(name))
                 throw new IllegalStateException("deck \"" + name + "\" already exists");
         }
         Deck deck = new Deck(name);
-        this.decks.add(deck);
-        return deck;
+        this.DECKS.add(deck);
     }
 
-    public boolean deleteDeck(String name) {
+    public void deleteDeck(String name) {
         Deck target = findDeckByName(name);
         returnCardsToCollection(target.removeAllCards());
-        this.decks.remove(target);
-        return true;
+        this.DECKS.remove(target);
     }
 
-    public boolean removeCardFromBinder(String binderName, String cardName) {
-        Binder tBinder = findBinderByName(binderName);
-        Card tCard = tBinder.removeCardByName(cardName);
+    public void removeCardFromBinder(String binderName, String cardName) {
+        Binder tBinder = findBinderByName(binderName); // throws on error
+        Card tCard = tBinder.removeCardByName(cardName); // throws on error
         addCardToCollection(tCard);
-        return true;
     }
 
-    public boolean addCardToBinder(String binderName, String cardName) {
-        Binder tBinder = findBinderByName(binderName);
-        Card tCard = this.cardCollection.removeCardByName(cardName);
+    public void addCardToBinder(String binderName, String cardName) {
+        Binder tBinder = findBinderByName(binderName); // throws on error
+        Card tCard = removeCardFromCollection(cardName); // throws on error
         if(!tBinder.addCard(tCard)) {
             // rollback extraction
-            // rethrow a clearer exception for higher layers
-            this.cardCollection.addCard(tCard);
+            addCardToCollection(tCard);
             throw new IllegalStateException("unable to add to binder because it is full");
         }
-        return true;
     }
 
-    public boolean deleteCardFromDeck(String deckName, String cardName) {
-        Deck tDeck = findDeckByName(deckName);
-        Card tCard = tDeck.removeCardByName(cardName);
+    public void deleteCardFromDeck(String deckName, String cardName) {
+        Deck tDeck = findDeckByName(deckName); // throws on error
+        Card tCard = tDeck.removeCardByName(cardName); // throws on error
         addCardToCollection(tCard);
-        return true;
     }
 
     public void addCardToDeck(String deckName, String cardName) {
         Deck tDeck = findDeckByName(deckName);
-        Card tCard = cardCollection.removeCardByName(cardName);  // throws on error
+        Card tCard = removeCardFromCollection(cardName);  // throws on error
         if (!tDeck.addCard(tCard)) {
             // rollback
-            cardCollection.addCard(tCard);
+            addCardToCollection(tCard);
             throw new IllegalStateException("unable to add to deck (full or duplicate)");
         }
     }
 
     public boolean tradeCard(String binderName, String outgoingName, Card incomingCard, boolean force) {
-        Binder tBinder = findBinderByName(binderName);
-        Card outgoingCard = tBinder.removeCardByName(outgoingName);
+        Binder tBinder = findBinderByName(binderName); // find the binder that would contain the outgoing card
+        Card outgoingCard = tBinder.removeCardByName(outgoingName); // find the outgoing card and remove it from binder
         addCardToCollection(incomingCard); // Store the ingoing card in collection
 
         BigDecimal diff = incomingCard.getValue().subtract(outgoingCard.getValue()).abs();
         if (diff.compareTo(BigDecimal.ONE) >= 0 && !force) { // Compare the difference to 1 and if trade is not forced
             // Cancel
-            this.cardCollection.removeCardByName(incomingCard.getName()); //Roll back
+            removeCardFromCollection(incomingCard.getName()); //Roll back
             tBinder.addCard(outgoingCard);
             return false; // return false to prompt user if they want to continue trade
         }
 
-        Card tradeCard = this.cardCollection.removeCardByName(incomingCard.getName());
+        Card tradeCard = removeCardFromCollection(incomingCard.getName());
         tBinder.addCard(tradeCard);
         return true; // Trade successful
     }
 
     public ArrayList<String> getBinderNames() {
         ArrayList<String> binderNames = new ArrayList<>();
-        for (Binder binder : this.binders)  {
+        for (Binder binder : this.BINDERS)  {
             binderNames.add(binder.getName());
         }
         return binderNames;
@@ -148,21 +136,25 @@ public class InventorySystem {
 
     public ArrayList<String> getDeckNames() {
         ArrayList<String> deckNames = new ArrayList<>();
-        for (Deck deck : this.decks)  {
+        for (Deck deck : this.DECKS)  {
             deckNames.add(deck.getName());
         }
         return deckNames;
     }
 
-    public ArrayList<String> getCardNamesInCollection() {
-        ArrayList<String> collectionNames = new ArrayList<>();
-        for (Card card : this.cardCollection.getSortedCopy())  {
-            collectionNames.add(card.getName());
-        }
-        return collectionNames;
+    public void addCardToCollection(Card c) {
+        this.CARD_COLLECTION.addCard(c);
     }
 
-    public void addCardToCollection(Card c) {
-        this.cardCollection.addCard(c);
+    public Card removeCardFromCollection(String name) {
+        return this.CARD_COLLECTION.removeCardByName(name);
+    }
+
+    public void incrementCardInCollection(String name) {
+        this.CARD_COLLECTION.incrementCard(name);
+    }
+
+    public void decrementCardInCollection(String name) {
+        this.CARD_COLLECTION.decrementCard(name);
     }
 }

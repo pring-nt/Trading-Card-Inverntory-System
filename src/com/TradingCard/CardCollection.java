@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 public class CardCollection {
-    private final ArrayList<Card> cards;
+    private final ArrayList<Card> CARDS;
 
     public CardCollection(){
-        this.cards = new ArrayList<>();
+        this.CARDS = new ArrayList<>();
     }
 
     public void addCard(Card c){
         Card existing = findByCardName(c.getName());
         if (existing == null) {
-            cards.add(c);
+            CARDS.add(c);
         } else if (existing.equals(c)) {
             existing.incrementCount();
         } else {
@@ -22,7 +22,7 @@ public class CardCollection {
     }
 
     public Card removeCardByName(String name) {
-        if (cards.isEmpty()) {
+        if (CARDS.isEmpty()) {
             throw new IllegalStateException("collection is empty!");
         }
 
@@ -42,7 +42,7 @@ public class CardCollection {
 
     public Card findByCardName(String name) {
         String query = name.trim().toLowerCase();
-        for (Card card : cards) {
+        for (Card card : CARDS) {
             if (card.getName().trim().toLowerCase().equals(query)) {
                 return card;
             }
@@ -66,11 +66,11 @@ public class CardCollection {
         }
         if (card.getCount() > 0) {
             card.decrementCount();
-        }
+        } else throw new IllegalStateException("card count is already at 0!");
     }
 
     public ArrayList<Card> getSortedCopy() {
-        ArrayList<Card> sortedCopy = new ArrayList<>(this.cards);
+        ArrayList<Card> sortedCopy = new ArrayList<>(this.CARDS);
         sortedCopy.sort(Comparator.comparing(Card::getName));
         return sortedCopy;
     }

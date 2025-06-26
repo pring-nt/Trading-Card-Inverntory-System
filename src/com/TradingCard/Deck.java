@@ -1,39 +1,34 @@
 package com.TradingCard;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class Deck {
     private static final int MAX_CAPACITY = 10;
 
-    private final String name;
-    private final ArrayList<Card> cards;
+    private final String NAME;
+    private final ArrayList<Card> CARDS;
 
     public Deck(String name) {
-        this.name = name;
-        this.cards = new ArrayList<>();
+        this.NAME = name;
+        this.CARDS = new ArrayList<>();
     }
 
     public String getName() {
-        return name;
+        return NAME;
     }
 
     public Card getCardAtIndex(int index) {
-        return this.cards.get(index);
+        return this.CARDS.get(index);
     }
 
     public Card findByCardName(String name) {
-        for (Card card : this.cards) {
+        for (Card card : this.CARDS) {
             if (card.getName().equalsIgnoreCase(name)) return card;
         }
         return null;
     }
 
-    public boolean containsCard(String name) {
-        return findByCardName(name) != null;
-    }
-
     public boolean addCard(Card c){
-        if(this.cards.size() >= MAX_CAPACITY) {
+        if(this.CARDS.size() >= MAX_CAPACITY) {
             return false;
         }
         Card existing = findByCardName(c.getName());
@@ -41,21 +36,21 @@ public class Deck {
             if (existing.equals(c)){
                 return false;
             } else {
-                throw new IllegalArgumentException("a different card with the same name already exists in the deck.");
+                throw new IllegalArgumentException("a different card with the same NAME already exists in the deck.");
             }
         }
-        this.cards.add(c);
+        this.CARDS.add(c);
         return true;
     }
 
     public ArrayList<Card> removeAllCards() {
-        ArrayList<Card> cards = new ArrayList<>(this.cards);
-        this.cards.clear();
+        ArrayList<Card> cards = new ArrayList<>(this.CARDS);
+        this.CARDS.clear();
         return cards;
     }
 
     public Card removeCardByName(String name) {
-        if (this.cards.isEmpty()) { // Deck is empty
+        if (this.CARDS.isEmpty()) { // Deck is empty
             throw new IllegalStateException("deck is empty");
         }
 
@@ -64,11 +59,11 @@ public class Deck {
             throw new IllegalArgumentException("card \"" + name + "\" not found in deck.");
         }
 
-        this.cards.remove(target); //Successfully removed card from deck
+        this.CARDS.remove(target); //Successfully removed card from deck
         return target;
     }
 
     public ArrayList<Card> getCopyOfCards() {
-        return new ArrayList<>(this.cards);
+        return new ArrayList<>(this.CARDS);
     }
 }

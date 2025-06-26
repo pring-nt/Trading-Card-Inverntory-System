@@ -6,45 +6,41 @@ import java.util.Comparator;
 public class Binder {
     private static final int MAX_CAPACITY = 20;
 
-    private final String name;
-    private final ArrayList<Card> cards;
+    private final String NAME;
+    private final ArrayList<Card> CARDS;
 
     public Binder(String name) {
-        this.name = name;
-        this.cards = new ArrayList<>();
+        this.NAME = name.trim();
+        this.CARDS = new ArrayList<>();
     }
 
     public String getName() {
-        return name;
-    }
-
-    public Card getCardAtIndex(int index) {
-        return this.cards.get(index);
+        return NAME;
     }
 
     public Card findByCardName(String name) {
-        for (Card card : this.cards) {
+        for (Card card : this.CARDS) {
             if (card.getName().equalsIgnoreCase(name)) return card;
         }
         return null;
     }
 
     public boolean addCard(Card card) {
-        if(this.cards.size() >= MAX_CAPACITY){
+        if(this.CARDS.size() >= MAX_CAPACITY){
         return false;
         }
 
-        return this.cards.add(card);
+        return this.CARDS.add(card);
     }
 
     public ArrayList<Card> removeAllCards() {
-        ArrayList<Card> cards = new ArrayList<>(this.cards);
-        this.cards.clear();
+        ArrayList<Card> cards = new ArrayList<>(this.CARDS);
+        this.CARDS.clear();
         return cards;
     }
 
     public Card removeCardByName(String name) {
-        if (this.cards.isEmpty()) { // Binder is empty
+        if (this.CARDS.isEmpty()) { // Binder is empty
             throw new IllegalStateException("binder is empty");
         }
 
@@ -53,12 +49,12 @@ public class Binder {
             throw new IllegalArgumentException("card \"" + name + "\" not found in binder.");
         }
 
-        this.cards.remove(target); // Card successfully removed from binder
+        this.CARDS.remove(target); // Card successfully removed from binder
         return target;
     }
 
     public ArrayList<Card> getSortedCopy() {
-        ArrayList<Card> sortedCopy = new ArrayList<>(this.cards);
+        ArrayList<Card> sortedCopy = new ArrayList<>(this.CARDS);
         sortedCopy.sort(Comparator.comparing(Card::getName));
         return sortedCopy;
     }
