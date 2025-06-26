@@ -1,6 +1,7 @@
 package com.TradingCard;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 public class Collection {
     private final ArrayList<Card> cards;
@@ -16,8 +17,27 @@ public class Collection {
         } else if (existing.equals(c)) {
             existing.incrementCount();
         } else {
-            throw new IllegalArgumentException("Card with same name but different attributes exists.");
+            throw new IllegalArgumentException("card with same name but different attributes exists.");
         }
+    }
+
+    public Card removeCardByName(String name) {
+        if (cards.isEmpty()) {
+            throw new IllegalStateException("collection is empty!");
+        }
+
+        Card target = findByCardName(name);
+        if (target == null) {
+            throw new NoSuchElementException("card \"" + name + "\" not found in collection!");
+        }
+
+        if (target.getCount() == 0) {
+            throw new IllegalStateException("no copies left of the requested card.");
+        }
+
+        Card copy = Card.copyCard(target);
+        target.decrementCount();
+        return copy;
     }
 
     public Card findByCardName(String name) {
@@ -34,7 +54,7 @@ public class Collection {
     public void incrementCard(String name) {
         Card card = findByCardName(name);
         if (card == null) {
-            throw new IllegalArgumentException("Card not found.");
+            throw new NoSuchElementException("card \"" + name + "\" not found in collection!");
         }
         card.incrementCount();
     }
@@ -42,9 +62,11 @@ public class Collection {
     public void decrementCard(String name) {
         Card card = findByCardName(name);
         if (card == null) {
-            throw new IllegalArgumentException("Card not found.");
+            throw new NoSuchElementException("card \"" + name + "\" not found in collection!");
         }
-        card.decrementCount();
+        if (card.getCount() > 0) {
+            card.decrementCount();
+        }
     }
 
     public void viewCollection(){

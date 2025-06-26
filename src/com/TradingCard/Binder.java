@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Binder {
+    private static final int MAX_CAPACITY = 20;
+
     private final String name;
     private final ArrayList<Card> cards;
 
@@ -16,51 +18,43 @@ public class Binder {
         return name;
     }
 
-    public void addCard(Card card) {
-        if(this.cards.size() < 20){
-            this.cards.add(card);
-        }
-        else {
-            System.out.println("Binder is full!");
-        }
+    public Card getCardAtIndex(int index) {
+        return this.cards.get(index);
     }
 
-    public Card getCard(int index) {
-        return cards.get(index);
-    }
-
-    private Card findCardByName(String name) {
-        for (Card card : cards) {
+    public Card findByCardName(String name) {
+        for (Card card : this.cards) {
             if (card.getName().equalsIgnoreCase(name)) return card;
         }
         return null;
     }
 
-    public Card removeCard(String name) {
-        if (cards.isEmpty()) {
-            System.out.println("Binder is empty!");
-            return null;
+    public boolean addCard(Card card) {
+        if(this.cards.size() >= MAX_CAPACITY){
+        return false;
         }
 
-        Card target = findCardByName(name);
-        if (target == null) {
-            System.out.println("Card not found in binder!");
-            return null;
-        }
-
-        cards.remove(target);
-        System.out.println(target + "\nHas been removed from the binder.");
-        return target;
+        return this.cards.add(card);
     }
 
-    public void viewBinder() {
-        System.out.println("Binder Name: " + this.name);
-        ArrayList<Card> sorted = getSortedCopy();
-        for(Card card: sorted) {
-            if (card.getCount() == 1) {
-                System.out.println(card);
-            }
+    public ArrayList<Card> removeAllCards() {
+        ArrayList<Card> cards = new ArrayList<>(this.cards);
+        this.cards.clear();
+        return cards;
+    }
+
+    public Card removeCardByName(String name) {
+        if (this.cards.isEmpty()) { // Binder is empty
+            throw new IllegalStateException("binder is empty");
         }
+
+        Card target = findByCardName(name);
+        if (target == null) { // Card not found
+            throw new IllegalArgumentException("card \"" + name + "\" not found in binder.");
+        }
+
+        this.cards.remove(target); // Card successfully removed from binder
+        return target;
     }
 
     public ArrayList<Card> getSortedCopy() {
