@@ -67,25 +67,73 @@ public class Controller {
     }
 
     /**
-     * Handle adding a card: either new or increment existing count.
-     * @return the added/incremented card's name, or null if user cancels
+     * Handle adding a card: new or increment existing count, with cancel option at any prompt.
+     * @return the added or incremented card's name, or null if user aborts
      */
     private String handleAddCard() {
-        String name = promptInput("card name: ");
+        // prompt for name or cancel
+        String name = promptInput("input card name (or 'cancel' to abort): ");
+        if (name == null || name.trim().equalsIgnoreCase("cancel")) {
+            return null;
+        }
         Card existing = INVENTORY_SYSTEM.findCardByNameInCollection(name);
         if (existing != null) {
-            // existing card: offer increment
             VIEW.showMessage("card already exists in collection");
-            if (VIEW.confirm("do you want to increment the count of this card instead? (yes/no): ")) {
-                INVENTORY_SYSTEM.incrementCardInCollection(name);
-                return name.trim().toLowerCase(); // return after increment
+            if (!VIEW.confirm("increment count instead? (yes/no): ")) {
+                return null;
             }
-            return null; // user cancelled
+            INVENTORY_SYSTEM.incrementCardInCollection(name);
+            return name.trim().toLowerCase();
         }
-        // new card: prompt attributes
-        Rarity rarity = promptRarity();
-        Variation var = promptVariation(rarity);
-        BigDecimal val = promptBaseValue();
+        // prompt for rarity or cancel
+        Rarity rarity;
+        while (true) {
+            VIEW.showRarityOptions();
+            String input = promptInput("input rarity (or 'cancel' to abort): ");
+            if (input == null || input.trim().equalsIgnoreCase("cancel")) {
+                return null;
+            }
+            try {
+                rarity = Rarity.valueOf(input.trim().toUpperCase());
+                break;
+            } catch (IllegalArgumentException e) {
+                VIEW.showError("invalid rarity: " + input);
+            }
+        }
+        // prompt for variation or cancel
+        Variation var;
+        if (rarity != Rarity.RARE && rarity != Rarity.LEGENDARY) {
+            var = Variation.NORMAL;
+        } else {
+            while (true) {
+                VIEW.showVariationOptions();
+                String input = promptInput("input variation (or 'cancel' to abort): ");
+                if (input == null || input.trim().equalsIgnoreCase("cancel")) {
+                    return null;
+                }
+                try {
+                    var = Variation.valueOf(input.trim().toUpperCase());
+                    break;
+                } catch (IllegalArgumentException e) {
+                    VIEW.showError("invalid variation: " + input);
+                }
+            }
+        }
+        // prompt for base value or cancel
+        BigDecimal val;
+        while (true) {
+            String valueStr = promptInput("input base valueStr (or 'cancel' to abort): ");
+            if (valueStr == null || valueStr.trim().equalsIgnoreCase("cancel")) {
+                return null;
+            }
+            try {
+                val = new BigDecimal(valueStr.trim());
+                break;
+            } catch (NumberFormatException e) {
+                VIEW.showError("invalid number: " + valueStr);
+            }
+        }
+        // create and add card
         Card c = new Card(name, rarity, var, val);
         INVENTORY_SYSTEM.addCardToCollection(c);
         VIEW.showMessage("card added: " + c.getName());
@@ -292,52 +340,6 @@ public class Controller {
     }
 
     /**
-     * Loop until a valid Rarity is entered.
-     */
-    private Rarity promptRarity() {
-        while (true) {
-            VIEW.showRarityOptions();
-            String input = prompt();
-            try {
-                return Rarity.valueOf(input.trim().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                VIEW.showError("invalid rarity: " + input);
-            }
-        }
-    }
-
-    /**
-     * Loop until a valid Variation is entered, based on rarity.
-     */
-    private Variation promptVariation(Rarity rarity) {
-        if (rarity != Rarity.RARE && rarity != Rarity.LEGENDARY) {
-            return Variation.NORMAL;
-        }
-        while (true) {
-            VIEW.showVariationOptions();
-            String input = prompt();
-            try {
-                return Variation.valueOf(input.trim().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                VIEW.showError("invalid variation: " + input);
-            }
-        }
-    }
-
-    /**
-     * Loop until a valid BigDecimal is entered for base value.
-     */
-    private BigDecimal promptBaseValue() {
-        while (true) {
-            try {
-                return new BigDecimal(promptInput("base value: "));
-            } catch (NumberFormatException e) {
-                VIEW.showError("invalid number");
-            }
-        }
-    }
-
-    /**
      * Add a card from collection to binder, with rollback on failure.
      */
     private void addCardToBinder(String bName) {
@@ -366,8 +368,14 @@ public class Controller {
      * Handle a trade: removes outgoing, adds incoming, with optional force.
      */
     private void tradeInBinder(String bName) {
-        String out = promptInput("outgoing name: ");
+        String out = promptInput("outgoing name (or 'cancel' to abort): ");
+        if (out == null || out.trim().equalsIgnoreCase("cancel")) {
+            return;
+        }
         String incomingName = handleAddCard(); // reuse prompts for incoming card
+        if(incomingName == null) {
+            return;
+        }
         Card incoming = INVENTORY_SYSTEM.findCardByNameInCollection(incomingName);
         boolean proceed = INVENTORY_SYSTEM.tradeCard(bName, out, incoming, false);
         if (!proceed) {
