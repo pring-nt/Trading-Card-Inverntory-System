@@ -12,13 +12,13 @@ import java.util.*;
  * prompts the user for input. Does not contain any business logic.
  */
 public class View {
-    private final Scanner sc;
+    private final Scanner SC;
 
     /**
      * Constructs a new View with its own Scanner for user input.
      */
     public View() {
-        sc = new Scanner(System.in); // initialize scanner for CLI
+        SC = new Scanner(System.in); // initialize scanner for CLI
     }
 
     /**
@@ -203,7 +203,7 @@ public class View {
      */
     public String readLine(String message) {
         System.out.print(message);
-        return sc.nextLine(); // read input
+        return SC.nextLine(); // read input
     }
 
     /**
@@ -214,7 +214,7 @@ public class View {
      */
     public boolean confirm(String message) {
         System.out.print(message);
-        String input = sc.nextLine();
+        String input = SC.nextLine();
         switch (input.toLowerCase().trim()) {
             case "yes" -> { return true; }
             case "no"  -> { return false; }
@@ -242,6 +242,6 @@ public class View {
      * Close the Scanner resource when application exits.
      */
     public void closeScanner() {
-        this.sc.close();
+        this.SC.close();
     }
 }

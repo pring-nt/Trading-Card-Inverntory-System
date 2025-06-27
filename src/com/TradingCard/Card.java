@@ -6,63 +6,63 @@ import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
- * Represents a trading card with a name, rarity, variation, base value, and count.
+ * Represents a trading card with a NAME, RARITY, VARIATION, base value, and count.
  * <p>
- * Provides methods to compute current market value based on variation and to
+ * Provides methods to compute current market value based on VARIATION and to
  * manage the count of copies in the collection.
  */
 public class Card {
-    private final String name;
-    private final Rarity rarity;
-    private final Variation variation;
-    private final BigDecimal baseValue;
+    private final String NAME;
+    private final Rarity RARITY;
+    private final Variation VARIATION;
+    private final BigDecimal BASE_VALUE;
     private int count;
 
     /**
      * Constructs a Card with given attributes and an initial count of 1.
-     * @param n    the name of the card (must be non-null, non-empty)
-     * @param r    the rarity of the card
-     * @param v    the variation of the card
+     * @param n    the NAME of the card (must be non-null, non-empty)
+     * @param r    the RARITY of the card
+     * @param v    the VARIATION of the card
      * @param val  the base monetary value of the card
-     * @throws IllegalArgumentException if name is null or blank
+     * @throws IllegalArgumentException if NAME is null or blank
      */
     public Card(String n, Rarity r, Variation v, BigDecimal val) {
         if (n == null || n.trim().isEmpty()) {
-            throw new IllegalArgumentException("name cannot be empty");
+            throw new IllegalArgumentException("NAME cannot be empty");
         }
-        this.name = n.trim();
-        this.rarity = r;
-        this.variation = v;
-        this.baseValue = val;
+        this.NAME = n.trim();
+        this.RARITY = r;
+        this.VARIATION = v;
+        this.BASE_VALUE = val;
         this.count = 1; // initial copy count
     }
 
     /**
-     * @return the rarity of this card
+     * @return the RARITY of this card
      */
     public Rarity getRarity() {
-        return rarity;
+        return RARITY;
     }
 
     /**
-     * @return the variation of this card
+     * @return the VARIATION of this card
      */
     public Variation getVariation() {
-        return variation;
+        return VARIATION;
     }
 
     /**
-     * @return the name of this card
+     * @return the NAME of this card
      */
     public String getName() {
-        return name;
+        return NAME;
     }
 
     /**
      * @return the base monetary value of this card
      */
     public BigDecimal getBaseValue() {
-        return this.baseValue;
+        return this.BASE_VALUE;
     }
 
     /**
@@ -73,13 +73,13 @@ public class Card {
     }
 
     /**
-     * Calculates the market value of the card based on its variation multiplier.
+     * Calculates the market value of the card based on its VARIATION multiplier.
      * The result is rounded to two decimal places.
-     * @return adjusted value according to variation
+     * @return adjusted value according to VARIATION
      */
     public BigDecimal getValue() {
         BigDecimal multiplier;
-        switch (variation) {
+        switch (VARIATION) {
             case EXTENDED_ART -> multiplier = BigDecimal.valueOf(1.5);
             case FULL_ART     -> multiplier = BigDecimal.valueOf(2.0);
             case ALT_ART      -> multiplier = BigDecimal.valueOf(3.0);
@@ -116,19 +116,19 @@ public class Card {
     }
 
     /**
-     * @return a string representation including name, rarity, variation, count, and value
+     * @return a string representation including NAME, RARITY, VARIATION, count, and value
      */
     @Override
     public String toString() {
-        return "Name: " + name +
-                " | Rarity: " + rarity +
-                " | Variation: " + variation +
+        return "Name: " + NAME +
+                " | Rarity: " + RARITY +
+                " | Variation: " + VARIATION +
                 " | Count: " + count +
                 " | Value: $" + getValue();
     }
 
     /**
-     * Equals based on name (case-insensitive), rarity, and variation.
+     * Equals based on NAME (case-insensitive), RARITY, and VARIATION.
      * @param obj the object to compare
      * @return true if same type and attributes, false otherwise
      */
@@ -136,17 +136,17 @@ public class Card {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (!(obj instanceof Card other)) return false;
-        return this.name.equalsIgnoreCase(other.name)
-                && this.rarity == other.rarity
-                && this.variation == other.variation;
+        return this.NAME.equalsIgnoreCase(other.NAME)
+                && this.RARITY == other.RARITY
+                && this.VARIATION == other.VARIATION;
     }
 
     /**
-     * Hash code consistent with equals, using lowercase name, rarity, and variation.
+     * Hash code consistent with equals, using lowercase NAME, RARITY, and VARIATION.
      * @return computed hash code
      */
     @Override
     public int hashCode() {
-        return Objects.hash(name.toLowerCase(), rarity, variation);
+        return Objects.hash(NAME.toLowerCase(), RARITY, VARIATION);
     }
 }
