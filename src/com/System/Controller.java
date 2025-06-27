@@ -341,8 +341,8 @@ public class Controller {
      * Add a card from collection to binder, with rollback on failure.
      */
     private void addCardToBinder(String bName) {
-        String name = promptInput("card name> ");
-        INVENTORY_SYSTEM.addCardToBinder(bName, name);
+        String cName = promptInput("card name: ");
+        INVENTORY_SYSTEM.addCardToBinder(bName, cName);
         VIEW.showMessage("added to binder");
     }
 
@@ -350,8 +350,8 @@ public class Controller {
      * Remove a card from a binder back into the collection.
      */
     private void removeCardFromBinder(String bName) {
-        String name = promptInput("card name> ");
-        INVENTORY_SYSTEM.removeCardFromBinder(bName, name);
+        String cName = promptInput("card cName: ");
+        INVENTORY_SYSTEM.removeCardFromBinder(bName, cName);
         VIEW.showMessage("removed from binder");
     }
 
