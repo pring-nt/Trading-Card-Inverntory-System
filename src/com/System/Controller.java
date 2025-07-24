@@ -86,8 +86,9 @@ public class Controller {
             return name.trim().toLowerCase();
         }
         // prompt for rarity or cancel
-        Rarity rarity;
-        while (true) {
+        Rarity rarity = null;
+        boolean exitFlag = false;
+        while (!exitFlag) {
             VIEW.showRarityOptions();
             String input = promptInput("input rarity (or 'cancel' to abort): ");
             if (input == null || input.trim().equalsIgnoreCase("cancel")) {
@@ -95,17 +96,18 @@ public class Controller {
             }
             try {
                 rarity = Rarity.valueOf(input.trim().toUpperCase());
-                break;
+                exitFlag = true;
             } catch (IllegalArgumentException e) {
                 VIEW.showError("invalid rarity: " + input);
             }
         }
         // prompt for variation or cancel
-        Variation var;
+        Variation var = null;
         if (rarity != Rarity.RARE && rarity != Rarity.LEGENDARY) {
             var = Variation.NORMAL;
         } else {
-            while (true) {
+            exitFlag = false;
+            while (!exitFlag) {
                 VIEW.showVariationOptions();
                 String input = promptInput("input variation (or 'cancel' to abort): ");
                 if (input == null || input.trim().equalsIgnoreCase("cancel")) {
@@ -113,22 +115,23 @@ public class Controller {
                 }
                 try {
                     var = Variation.valueOf(input.trim().toUpperCase());
-                    break;
+                    exitFlag = true;
                 } catch (IllegalArgumentException e) {
                     VIEW.showError("invalid variation: " + input);
                 }
             }
         }
         // prompt for base value or cancel
-        BigDecimal val;
-        while (true) {
+        BigDecimal val = null;
+        exitFlag = false;
+        while (!exitFlag) {
             String valueStr = promptInput("input base valueStr (or 'cancel' to abort): ");
             if (valueStr == null || valueStr.trim().equalsIgnoreCase("cancel")) {
                 return null;
             }
             try {
                 val = new BigDecimal(valueStr.trim());
-                break;
+                exitFlag = true;
             } catch (NumberFormatException e) {
                 VIEW.showError("invalid number: " + valueStr);
             }
