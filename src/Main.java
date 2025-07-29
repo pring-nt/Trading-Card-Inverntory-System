@@ -8,6 +8,5 @@ public class Main {
         View view = new View();
         Controller controller = new Controller(view, inventorySystem);
         controller.run();
-        // Start MCO2
     }
 }
