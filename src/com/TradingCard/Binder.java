@@ -9,11 +9,11 @@ import java.util.Comparator;
  * Supports adding cards, removing by name or clearing all cards,
  * and retrieving a sorted view of contained cards.
  */
-public class Binder {
-    private static final int MAX_CAPACITY = 20;  // maximum slots in a binder
+public abstract class Binder {
+    protected static final int MAX_CAPACITY = 20;  // maximum slots in a binder
 
     private final String NAME;                  // binder's unique name
-    private final ArrayList<Card> CARDS;       // internal list of cards
+    protected final ArrayList<Card> CARDS;       // internal list of cards
 
     /**
      * Constructs a Binder with the given name.
@@ -53,12 +53,7 @@ public class Binder {
      * @param card the Card to add
      * @return true if added, false if binder is full
      */
-    public boolean addCard(Card card) {
-        if (this.CARDS.size() >= MAX_CAPACITY) {
-            return false; // full, cannot add
-        }
-        return this.CARDS.add(card);
-    }
+    public abstract boolean addCard(Card card);
 
     /**
      * Remove and return all cards from this binder.

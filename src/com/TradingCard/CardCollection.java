@@ -1,5 +1,6 @@
 package com.TradingCard;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
@@ -57,6 +58,19 @@ public class CardCollection {
         Card copy = Card.copyCard(target); // shallow copy, count=1
         target.decrementCount();          // reduce stored count
         return copy;
+    }
+
+    /**
+     * Sells a card in the collection
+     * @param name card name to increment
+     * @throws NoSuchElementException if card not found
+     */
+    public BigDecimal sellCardByName(String name) {
+        Card card = findByCardName(name);
+        if (card == null) {
+            throw new NoSuchElementException("card \"" + name + "\" not found in collection!");
+        }
+        return card.sell();
     }
 
     /**

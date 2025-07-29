@@ -12,7 +12,7 @@ public class Deck {
     private static final int MAX_CAPACITY = 10; // max cards in a deck
 
     private final String NAME;                // deck name identifier
-    private final ArrayList<Card> CARDS;     // internal list of cards
+    protected final ArrayList<Card> CARDS;     // internal list of cards
 
     /**
      * Constructs a Deck with the specified name.

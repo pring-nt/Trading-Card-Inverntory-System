@@ -1,6 +1,8 @@
 package com.System;
 
 import com.TradingCard.*;
+import com.TradingCard.Enums.BinderType;
+
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -13,7 +15,8 @@ import java.util.*;
 public class InventorySystem {
     private final CardCollection CARD_COLLECTION;
     private final ArrayList<Deck> DECKS;
-    private final ArrayList<Binder> BINDERS;
+    private final BinderManager BINDER_MANAGER;
+    private BigDecimal collectorEarnings;
 
     /**
      * Constructs a new InventorySystem with empty collection, decks, and binders.
@@ -21,7 +24,7 @@ public class InventorySystem {
     public InventorySystem() {
         this.CARD_COLLECTION = new CardCollection(); // primary card collection
         this.DECKS = new ArrayList<>();             // list of decks
-        this.BINDERS = new ArrayList<>();           // list of binders
+        this.BINDER_MANAGER = new BinderManager();  // binder manager
     }
 
     /**
@@ -60,11 +63,7 @@ public class InventorySystem {
      * @throws NoSuchElementException if no binder with that name exists
      */
     public Binder findBinderByName(String name) {
-        for (Binder binder : this.BINDERS) {
-            if (binder.getName().equalsIgnoreCase(name))
-                return binder;
-        }
-        throw new NoSuchElementException("binder \"" + name + "\" not found");
+        return BINDER_MANAGER.findBinderByName(name);
     }
 
     /**
@@ -84,15 +83,11 @@ public class InventorySystem {
     /**
      * Create a new Binder and add it to the system.
      * @param name name for the new binder
+     * @param type type of binder being created
      * @throws IllegalStateException if a binder with that name already exists
      */
-    public void createBinder(String name) {
-        for (Binder b : this.BINDERS) {
-            if (b.getName().equalsIgnoreCase(name))
-                throw new IllegalStateException("binder \"" + name + "\" already exists");
-        }
-        Binder binder = new Binder(name);
-        this.BINDERS.add(binder);
+    public void createBinder(String name, BinderType type) {
+        BINDER_MANAGER.createBinder(name, type);
     }
 
     /**
@@ -101,9 +96,7 @@ public class InventorySystem {
      * @throws NoSuchElementException if binder not found
      */
     public void deleteBinder(String name) {
-        Binder target = findBinderByName(name);
-        returnCardsToCollection(target.removeAllCards());
-        this.BINDERS.remove(target);
+        returnCardsToCollection(BINDER_MANAGER.deleteBinder(name));
     }
 
     /**
@@ -137,8 +130,7 @@ public class InventorySystem {
      * @param cardName name of card to remove
      */
     public void removeCardFromBinder(String binderName, String cardName) {
-        Binder tBinder = findBinderByName(binderName);
-        Card tCard = tBinder.removeCardByName(cardName);
+        Card tCard = BINDER_MANAGER.removeCardFromBinder(binderName, cardName);
         addCardToCollection(tCard);
     }
 
@@ -149,10 +141,10 @@ public class InventorySystem {
      * @throws IllegalStateException if binder is full (and rolls back)
      */
     public void addCardToBinder(String binderName, String cardName) {
-        Binder tBinder = findBinderByName(binderName);
         Card tCard = removeSingleCardFromCollection(cardName);
-        if(!tBinder.addCard(tCard)) {
-            addCardToCollection(tCard);
+        Card returnValue = BINDER_MANAGER.addCardToBinder(binderName, tCard);
+        if(returnValue != null) {
+            addCardToCollection(returnValue);
             throw new IllegalStateException("unable to add to binder because it is full");
         }
     }
@@ -193,14 +185,21 @@ public class InventorySystem {
      */
     public boolean tradeCard(String binderName, String outgoingName, Card incomingCard, boolean force) {
         Binder tBinder = findBinderByName(binderName);
+        if (tBinder instanceof Sellable) {
+            throw new IllegalStateException("Binder \"" + binderName + "\" cannot be used for trading");
+        }
+
         Card outgoingCard = tBinder.removeCardByName(outgoingName);
         addCardToCollection(incomingCard);
+
         BigDecimal diff = incomingCard.getValue().subtract(outgoingCard.getValue()).abs();
+
         if (diff.compareTo(BigDecimal.ONE) >= 0 && !force) {
             removeSingleCardFromCollection(incomingCard.getName());
             tBinder.addCard(outgoingCard);
             return false;
         }
+
         Card tradeCard = removeSingleCardFromCollection(incomingCard.getName());
         tBinder.addCard(tradeCard);
         return true;
@@ -211,11 +210,7 @@ public class InventorySystem {
      * @return list of binder names
      */
     public ArrayList<String> getBinderNames() {
-        ArrayList<String> binderNames = new ArrayList<>();
-        for (Binder binder : this.BINDERS) {
-            binderNames.add(binder.getName());
-        }
-        return binderNames;
+        return BINDER_MANAGER.getBinderNames();
     }
 
     /**
