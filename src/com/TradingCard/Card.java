@@ -11,7 +11,7 @@ import java.util.Objects;
  * Provides methods to compute current market value based on VARIATION and to
  * manage the count of copies in the collection.
  */
-public class Card {
+public class Card implements Sellable {
     private final String NAME;
     private final Rarity RARITY;
     private final Variation VARIATION;
@@ -113,6 +113,15 @@ public class Card {
             return new Card(c.getName(), c.getRarity(), c.getVariation(), c.getBaseValue());
         }
         return null;
+    }
+
+    @Override
+    public BigDecimal sell() {
+        if(this.count < 0) {
+            throw new IllegalStateException("0 copies of the card "+ NAME +" is found in the deck");
+        }
+        decrementCount();
+        return getValue();
     }
 
     /**

@@ -1,15 +1,15 @@
 package com.System;
 
 import com.TradingCard.*;
-import com.TradingCard.Enums.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
  * View component for the Trading Card Inventory System (TCIS).
  * <p>
  * Responsible for all CLI input/output operations. Displays menus, lists, details, and
- * prompts the user for input. Does not contain any business logic.
+ * prompts the user for input. Contains no business logic.
  */
 public class View {
     private final Scanner SC;
@@ -18,25 +18,27 @@ public class View {
      * Constructs a new View with its own Scanner for user input.
      */
     public View() {
-        SC = new Scanner(System.in); // initialize scanner for CLI
+        SC = new Scanner(System.in);
     }
 
     /**
-     * Display the list of deck names.
-     * @param names list of deck names to show
+     * Displays the list of deck names.
+     *
+     * @param names the list of deck names to show
      */
-    public void showDeckNames(ArrayList<String> names) {
+    public void showDeckNames(List<String> names) {
         System.out.println("\n=== decks ===");
         for (String name : names) {
-            System.out.println("  - " + name); // prefix for readability
+            System.out.println("  - " + name);
         }
     }
 
     /**
-     * Display the list of binder names.
-     * @param names list of binder names to show
+     * Displays the list of binder names.
+     *
+     * @param names the list of binder names to show
      */
-    public void showBinderNames(ArrayList<String> names) {
+    public void showBinderNames(List<String> names) {
         System.out.println("\n=== binders ===");
         for (String name : names) {
             System.out.println("  - " + name);
@@ -44,39 +46,57 @@ public class View {
     }
 
     /**
-     * Display available rarities for card creation.
+     * Displays available rarities for card creation.
+     *
+     * @param names the list of rarity names to show
      */
-    public void showRarityOptions() {
+    public void showRarityOptions(List<String> names) {
         System.out.println("\n=== rarities ===");
-        for (Rarity r : Rarity.values()) {
-            System.out.println("  - " + r.name().toLowerCase());
+        for (String name : names) {
+            System.out.println("  - " + name);
         }
     }
 
     /**
-     * Display available variations for card creation.
+     * Displays available variations for card creation.
+     *
+     * @param names the list of variation names to show
      */
-    public void showVariationOptions() {
+    public void showVariationOptions(List<String> names) {
         System.out.println("\n=== variations ===");
-        for (Variation v : Variation.values()) {
-            System.out.println("  - " + v.name().toLowerCase());
+        for (String name : names) {
+            System.out.println("  - " + name);
         }
     }
 
     /**
-     * Display full details of a single card.
-     * @param c the Card whose details to show
+     * Displays available binder types for binder creation.
+     *
+     * @param names the list of binder type names to show
      */
-    public void showCardDetails(Card c) {
-        System.out.println(c); // relies on Card.toString()
+    public void showBinderTypeOptions(List<String> names) {
+        System.out.println("\n=== binder types ===");
+        for (String name : names) {
+            System.out.println("  - " + name);
+        }
     }
 
     /**
-     * Display the entire card collection with counts.
-     * @param c the CardCollection to display
+     * Displays full details of a single card.
+     *
+     * @param details the card details string (usually from Card.toString())
      */
-    public void showCollection(CardCollection c) {
-        ArrayList<Card> cards = c.getSortedCopy();
+    public void showCardDetails(String details) {
+        System.out.println(details);
+    }
+
+    /**
+     * Displays the entire card collection with counts.
+     *
+     * @param collection the CardCollection to display
+     */
+    public void showCollection(CardCollection collection) {
+        List<Card> cards = collection.getSortedCopy();
         System.out.println("\n=== collection ===");
         for (Card card : cards) {
             System.out.println("  - card: " + card.getName() + ", count: " + card.getCount());
@@ -84,56 +104,58 @@ public class View {
     }
 
     /**
-     * Display the contents of a deck.
-     * @param d the Deck to display
+     * Displays the contents of a deck.
+     *
+     * @param deck the Deck to display
      */
-    public void showDeck(Deck d) {
-        ArrayList<Card> cards = d.getCopyOfCards();
-        System.out.printf("%n=== deck: %s ===%n", d.getName());
-        int i = 1;
+    public void showDeck(Deck deck) {
+        List<Card> cards = deck.getCopyOfCards();
+        System.out.printf("%n=== deck: %s ===%n", deck.getName());
+        int index = 1;
         for (Card card : cards) {
-            System.out.printf("  %d) %s%n", i++, card.getName());
+            System.out.printf("  %d) %s%n", index++, card.getName());
         }
     }
 
     /**
-     * Display the contents of a binder.
-     * @param b the Binder to display
+     * Displays the contents of a binder.
+     *
+     * @param binder the Binder to display
      */
-    public void showBinder(Binder b) {
-        ArrayList<Card> cards = b.getSortedCopy();
-        System.out.printf("%n=== binder: %s ===%n", b.getName());
+    public void showBinder(Binder binder) {
+        List<Card> cards = binder.getSortedCopy();
+        System.out.printf("%n=== binder: %s ===%n", binder.getName());
         for (Card card : cards) {
             System.out.println(card.getName());
         }
     }
 
     /**
-     * Display the dynamic main menu based on current state.
-     * @param hasCards   true if collection has at least one card
-     * @param hasBinders true if at least one binder exists
-     * @param hasDecks   true if at least one deck exists
+     * Displays the dynamic main menu based on current state.
+     *
+     * @param hasCards          true if collection has at least one card
+     * @param hasBinders        true if at least one binder exists
+     * @param hasDecks          true if at least one deck exists
+     * @param collectorEarnings the current collector earnings value
      */
-    public void showMainMenu(boolean hasCards, boolean hasBinders, boolean hasDecks) {
+    public void showMainMenu(boolean hasCards, boolean hasBinders, boolean hasDecks, BigDecimal collectorEarnings) {
         System.out.println("\n=== main menu ===");
-        int opt = 1;
-        System.out.printf("%d. add a card%n", opt++);
-        // binder option
-        if (!hasBinders) System.out.printf("%d. create a new binder%n", opt++);
-        else System.out.printf("%d. manage binders%n", opt++);
-        // deck option
-        if (!hasDecks) System.out.printf("%d. create a new deck%n", opt++);
-        else System.out.printf("%d. manage decks%n", opt++);
-        // collection options
+        System.out.printf("collector earnings: %.2f%n", collectorEarnings.doubleValue());
+        int option = 1;
+        System.out.printf("%d. add a card%n", option++);
+        if (!hasBinders) System.out.printf("%d. create a new binder%n", option++);
+        else System.out.printf("%d. manage binders%n", option++);
+        if (!hasDecks) System.out.printf("%d. create a new deck%n", option++);
+        else System.out.printf("%d. manage decks%n", option++);
         if (hasCards) {
-            System.out.printf("%d. view collection%n", opt++);
-            System.out.printf("%d. increase/decrease card count%n", opt++);
+            System.out.printf("%d. view collection%n", option++);
+            System.out.printf("%d. increase/decrease card count%n", option++);
         }
-        System.out.printf("%d. exit%n", opt);
+        System.out.printf("%d. exit%n", option);
     }
 
     /**
-     * Display menu to create or view binders.
+     * Displays the manage binder menu.
      */
     public void showManageBinderMenu() {
         System.out.printf("%n=== manage binder ===%n");
@@ -143,7 +165,7 @@ public class View {
     }
 
     /**
-     * Display menu to create or view decks.
+     * Displays the manage deck menu.
      */
     public void showManageDeckMenu() {
         System.out.printf("%n=== manage deck ===%n");
@@ -153,11 +175,14 @@ public class View {
     }
 
     /**
-     * Display options for a specific binder's operations.
-     * @param binderName name of the binder
+     * Displays options for a specific binder's operations.
+     *
+     * @param binderName the name of the binder
      * @param hasCards   true if binder contains cards
+     * @param sellable   true if binder can be sold
+     * @param isLuxury   true if binder is luxury type
      */
-    public void showBinderMenu(String binderName, boolean hasCards) {
+    public void showBinderMenu(String binderName, boolean hasCards, boolean sellable, boolean isLuxury) {
         System.out.printf("%n=== binder: %s ===%n", binderName);
         int option = 1;
         System.out.printf("%d. add card to binder%n", option++);
@@ -167,15 +192,21 @@ public class View {
             System.out.printf("%d. view binder contents%n", option++);
         }
         System.out.printf("%d. delete binder%n", option++);
+        if (hasCards && sellable) {
+            if (isLuxury) System.out.printf("%d. set binder value%n", option++);
+            System.out.printf("%d. sell binder%n", option++);
+        }
         System.out.printf("%d. back%n", option);
     }
 
     /**
-     * Display options for a specific deck's operations.
-     * @param deckName name of the deck
+     * Displays options for a specific deck's operations.
+     *
+     * @param deckName the name of the deck
      * @param hasCards true if deck contains cards
+     * @param sellable true if deck can be sold
      */
-    public void showDeckMenu(String deckName, boolean hasCards) {
+    public void showDeckMenu(String deckName, boolean hasCards, boolean sellable) {
         System.out.printf("%n=== deck: %s ===%n", deckName);
         int option = 1;
         System.out.printf("%d. add card to deck%n", option++);
@@ -184,46 +215,54 @@ public class View {
             System.out.printf("%d. view deck contents%n", option++);
         }
         System.out.printf("%d. delete deck%n", option++);
+        if (hasCards && sellable) System.out.printf("%d. sell deck%n", option++);
         System.out.printf("%d. back%n", option);
     }
 
     /**
-     * Display collection sub-menu for specific card view.
+     * Displays collection submenu for specific card actions.
      */
     public void showCollectionOptions() {
-        int option = 1;
-        System.out.printf("%d. view a specific card%n", option++);
-        System.out.printf("%d. back%n", option);
+        System.out.printf("%d. view a specific card%n", 1);
+        System.out.printf("%d. sell a specific card%n", 2);
+        System.out.printf("%d. back%n", 3);
     }
 
     /**
-     * Prompt with message and read a line from the user.
-     * @param message prompt to display before reading
-     * @return user input line
+     * Prompts with a message and reads a line from the user.
+     *
+     * @param message the prompt to display before reading
+     * @return the line of input entered by the user
      */
     public String readLine(String message) {
         System.out.print(message);
-        return SC.nextLine(); // read input
+        return SC.nextLine();
     }
 
     /**
-     * Prompt for yes/no confirmation.
-     * @param message prompt message
-     * @return true if user enters "yes", false if "no"
-     * @throws IllegalArgumentException on other input
+     * Prompts for yes/no confirmation.
+     *
+     * @param message the prompt message
+     * @return true if the user enters "yes", false if "no"
+     * @throws IllegalArgumentException if input is not "yes" or "no"
      */
     public boolean confirm(String message) {
         System.out.print(message);
-        String input = SC.nextLine();
-        switch (input.toLowerCase().trim()) {
-            case "yes" -> { return true; }
-            case "no"  -> { return false; }
-            default    -> throw new IllegalArgumentException("invalid response: " + input);
+        String input = SC.nextLine().toLowerCase().trim();
+        switch (input) {
+            case "yes" -> {
+                return true;
+            }
+            case "no" -> {
+                return false;
+            }
+            default -> throw new IllegalArgumentException("invalid response: " + input);
         }
     }
 
     /**
-     * Display a general information message.
+     * Displays a general information message.
+     *
      * @param message the message to show
      */
     public void showMessage(String message) {
@@ -231,7 +270,8 @@ public class View {
     }
 
     /**
-     * Display an error message.
+     * Displays an error message.
+     *
      * @param error the error text to show
      */
     public void showError(String error) {
@@ -239,9 +279,9 @@ public class View {
     }
 
     /**
-     * Close the Scanner resource when application exits.
+     * Closes the Scanner resource when the application exits.
      */
     public void closeScanner() {
-        this.SC.close();
+        SC.close();
     }
 }
