@@ -25,6 +25,16 @@ public class RaresBinder extends Binder implements Sellable {
     }
 
     /**
+     * Indicates that this binder can be sold.
+     *
+     * @return {@code true} always, as rares binders are sellable
+     */
+    @Override
+    public boolean isSellable() {
+        return true;
+    }
+
+    /**
      * Adds a card to this binder if capacity allows and the card's rarity is rare or legendary.
      *
      * @param card the {@link Card} to add
@@ -68,7 +78,9 @@ public class RaresBinder extends Binder implements Sellable {
     public BigDecimal getValue() {
         BigDecimal total = BigDecimal.ZERO;
         for (Card card : CARDS) {
-            total = total.add(card.getValue());
+            if(card != null) {
+                total = total.add(card.getValue());
+            }
         }
         return total;
     }

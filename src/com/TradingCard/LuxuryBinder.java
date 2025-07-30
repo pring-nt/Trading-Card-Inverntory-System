@@ -44,6 +44,16 @@ public class LuxuryBinder extends Binder implements Sellable {
     }
 
     /**
+     * Indicates that this binder can be sold.
+     *
+     * @return {@code true} always, as luxury binders are sellable
+     */
+    @Override
+    public boolean isSellable() {
+        return true;
+    }
+
+    /**
      * Sets a custom sale price for this binder.  The custom price must not be lower
      * than the total real value of the cards currently inside.
      *
@@ -80,6 +90,15 @@ public class LuxuryBinder extends Binder implements Sellable {
         CARDS.clear();
         return total;
     }
+    /**
+     * Computes the total real value of all cards currently in this binder.
+     * Does not modify the binder's contents.
+     *
+     * @return sum of card values as {@link BigDecimal}
+     */
+    public BigDecimal getCustomPrice() {
+        return this.customPrice;
+    }
 
     /**
      * Computes the total real value of all cards currently in this binder.
@@ -91,7 +110,9 @@ public class LuxuryBinder extends Binder implements Sellable {
     public BigDecimal getValue() {
         BigDecimal total = BigDecimal.ZERO;
         for (Card card : CARDS) {
-            total = total.add(card.getValue());
+            if(card != null) {
+                total = total.add(card.getValue());
+            }
         }
         return total;
     }

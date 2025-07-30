@@ -1,8 +1,8 @@
 package com.System;
 
 import com.TradingCard.*;
-import com.TradingCard.Enums.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -46,28 +46,38 @@ public class View {
     /**
      * Display available rarities for card creation.
      */
-    public void showRarityOptions() {
+    public void showRarityOptions(ArrayList<String> names) {
         System.out.println("\n=== rarities ===");
-        for (Rarity r : Rarity.values()) {
-            System.out.println("  - " + r.name().toLowerCase());
+        for (String name : names) {
+            System.out.println("  - " + name);
         }
     }
 
     /**
      * Display available variations for card creation.
      */
-    public void showVariationOptions() {
+    public void showVariationOptions(ArrayList<String> names) {
         System.out.println("\n=== variations ===");
-        for (Variation v : Variation.values()) {
-            System.out.println("  - " + v.name().toLowerCase());
+        for (String name : names) {
+            System.out.println("  - " + name);
+        }
+    }
+
+    /**
+     * Display available variations for card creation.
+     */
+    public void showBinderTypeOptions(ArrayList<String> names) {
+        System.out.println("\n=== binder types ===");
+        for (String name : names) {
+            System.out.println("  - " + name);
         }
     }
 
     /**
      * Display full details of a single card.
-     * @param c the Card whose details to show
+     * @param c a string containing the card details
      */
-    public void showCardDetails(Card c) {
+    public void showCardDetails(String c) {
         System.out.println(c); // relies on Card.toString()
     }
 
@@ -114,8 +124,9 @@ public class View {
      * @param hasBinders true if at least one binder exists
      * @param hasDecks   true if at least one deck exists
      */
-    public void showMainMenu(boolean hasCards, boolean hasBinders, boolean hasDecks) {
+    public void showMainMenu(boolean hasCards, boolean hasBinders, boolean hasDecks, BigDecimal collectorEarnings) {
         System.out.println("\n=== main menu ===");
+        System.out.printf("collector earnings: %.2f%n", collectorEarnings.doubleValue());
         int opt = 1;
         System.out.printf("%d. add a card%n", opt++);
         // binder option
@@ -157,7 +168,7 @@ public class View {
      * @param binderName name of the binder
      * @param hasCards   true if binder contains cards
      */
-    public void showBinderMenu(String binderName, boolean hasCards) {
+    public void showBinderMenu(String binderName, boolean hasCards, boolean sellable, boolean isLuxury) {
         System.out.printf("%n=== binder: %s ===%n", binderName);
         int option = 1;
         System.out.printf("%d. add card to binder%n", option++);
@@ -167,6 +178,12 @@ public class View {
             System.out.printf("%d. view binder contents%n", option++);
         }
         System.out.printf("%d. delete binder%n", option++);
+        if (hasCards && sellable) {
+            if(isLuxury){
+                System.out.printf("%d. set binder value%n", option++);
+            }
+            System.out.printf("%d. sell binder%n", option++);
+        }
         System.out.printf("%d. back%n", option);
     }
 
@@ -175,7 +192,7 @@ public class View {
      * @param deckName name of the deck
      * @param hasCards true if deck contains cards
      */
-    public void showDeckMenu(String deckName, boolean hasCards) {
+    public void showDeckMenu(String deckName, boolean hasCards, boolean sellable) {
         System.out.printf("%n=== deck: %s ===%n", deckName);
         int option = 1;
         System.out.printf("%d. add card to deck%n", option++);
@@ -184,6 +201,9 @@ public class View {
             System.out.printf("%d. view deck contents%n", option++);
         }
         System.out.printf("%d. delete deck%n", option++);
+        if (hasCards && sellable) {
+            System.out.printf("%d. sell deck%n", option++);
+        }
         System.out.printf("%d. back%n", option);
     }
 
@@ -193,6 +213,7 @@ public class View {
     public void showCollectionOptions() {
         int option = 1;
         System.out.printf("%d. view a specific card%n", option++);
+        System.out.printf("%d. sell a specific card%n", option++);
         System.out.printf("%d. back%n", option);
     }
 

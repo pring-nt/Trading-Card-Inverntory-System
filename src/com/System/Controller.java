@@ -1,6 +1,7 @@
 package com.System;
 
 import com.TradingCard.*;
+import com.TradingCard.Enums.BinderType;
 import com.TradingCard.Enums.Rarity;
 import com.TradingCard.Enums.Variation;
 
@@ -14,14 +15,14 @@ import java.math.BigDecimal;
  */
 public class Controller {
     private final View VIEW;
-    private final InventorySystem INVENTORY_SYSTEM;
+    private final EnhancedTCIS INVENTORY_SYSTEM;
 
     /**
      * Constructs a Controller with given View and InventorySystem.
      * @param view the View component for I/O
      * @param system the InventorySystem model
      */
-    public Controller(View view, InventorySystem system) {
+    public Controller(View view, EnhancedTCIS system) {
         this.VIEW = view;             // assign the view for printing and input
         this.INVENTORY_SYSTEM = system; // assign the model for business logic
     }
@@ -37,8 +38,7 @@ public class Controller {
             boolean hasCards   = !INVENTORY_SYSTEM.getCardCollection().getSortedCopy().isEmpty();
             boolean hasBinders = !INVENTORY_SYSTEM.getBinderNames().isEmpty();
             boolean hasDecks   = !INVENTORY_SYSTEM.getDeckNames().isEmpty();
-
-            VIEW.showMainMenu(hasCards, hasBinders, hasDecks); // display options
+            VIEW.showMainMenu(hasCards, hasBinders, hasDecks, INVENTORY_SYSTEM.getCollectorEarnings()); // display options
             String choice = prompt();                            // get user input
             try {
                 // route based on input
@@ -89,7 +89,7 @@ public class Controller {
         Rarity rarity = null;
         boolean exitFlag = false;
         while (!exitFlag) {
-            VIEW.showRarityOptions();
+            VIEW.showRarityOptions(INVENTORY_SYSTEM.getRarityNames());
             String input = promptInput("input rarity (or 'cancel' to abort): ");
             if (input == null || input.trim().equalsIgnoreCase("cancel")) {
                 return null;
@@ -108,7 +108,7 @@ public class Controller {
         } else {
             exitFlag = false;
             while (!exitFlag) {
-                VIEW.showVariationOptions();
+                VIEW.showVariationOptions(INVENTORY_SYSTEM.getVariationNames());
                 String input = promptInput("input variation (or 'cancel' to abort): ");
                 if (input == null || input.trim().equalsIgnoreCase("cancel")) {
                     return null;
@@ -125,7 +125,7 @@ public class Controller {
         BigDecimal val = null;
         exitFlag = false;
         while (!exitFlag) {
-            String valueStr = promptInput("input base valueStr (or 'cancel' to abort): ");
+            String valueStr = promptInput("input base value (or 'cancel' to abort): ");
             if (valueStr == null || valueStr.trim().equalsIgnoreCase("cancel")) {
                 return null;
             }
@@ -147,8 +147,28 @@ public class Controller {
      * Prompt and create a new Binder in the model.
      */
     private void handleCreateBinder() {
-        String name = promptInput("binder name: ");
-        INVENTORY_SYSTEM.createBinder(name);
+        String name = promptInput("input binder name (or 'cancel' to abort): ");
+        if (name.trim().equalsIgnoreCase("cancel")) {
+            return;
+        }
+        boolean exitFlag;
+        BinderType binderType = null;
+        exitFlag = false;
+        while (!exitFlag) {
+            VIEW.showBinderTypeOptions(INVENTORY_SYSTEM.getBinderTypes());
+            String input = promptInput("input binder type (or 'cancel' to abort): ");
+            if (input.trim().equalsIgnoreCase("cancel")) {
+                return;
+            }
+            try {
+                binderType = BinderType.valueOf(input.trim().toUpperCase());
+                exitFlag = true;
+            } catch (IllegalArgumentException e) {
+                VIEW.showError("invalid binder type: " + input);
+            }
+        }
+
+        INVENTORY_SYSTEM.createBinder(name, binderType);
         VIEW.showMessage("binder created: " + name);
     }
 
@@ -156,8 +176,24 @@ public class Controller {
      * Prompt and create a new Deck in the model.
      */
     private void handleCreateDeck() {
-        String name = promptInput("deck name: ");
-        INVENTORY_SYSTEM.createDeck(name);
+        String name = promptInput("input deck name (or 'cancel' to abort): ");
+        if (name.trim().equalsIgnoreCase("cancel")) {
+            return;
+        }
+        boolean exitFlag;
+        boolean sellable = false;
+        exitFlag = false;
+        while (!exitFlag) {
+            String input = promptInput("is the deck sellable? (yes/no or cancel to abort): ");
+            switch(input.trim().toLowerCase()) {
+                case "cancel"   -> { return; }
+                case "yes"      -> { sellable = true;
+                                     exitFlag = true; }
+                case "no"       -> exitFlag = true;
+                default         -> invalid();
+            }
+        }
+        INVENTORY_SYSTEM.createDeck(name, sellable);
         VIEW.showMessage("deck created: " + name);
     }
 
@@ -198,9 +234,16 @@ public class Controller {
                     if (c == null) {
                         invalid();
                     }
-                    else VIEW.showCardDetails(c);
+                    else VIEW.showCardDetails(c.toString());
                 }
-                case "2" -> back = true; // return to main menu
+                case "2" -> {
+                    cardName = promptInput("card name: ");
+                    VIEW.showMessage("card value: $" + INVENTORY_SYSTEM.getCardValue(cardName));
+                    if(VIEW.confirm("Are you sure you want to sell this card? (yes/no): ")) {
+                        INVENTORY_SYSTEM.sellCard(cardName);
+                    }
+                }
+                case "3" -> back = true; // return to main menu
                 default -> invalid();
             }
         }
@@ -217,8 +260,13 @@ public class Controller {
             choice = prompt();
             switch (choice) {
                 case "1" -> handleCreateBinder();
-                case "2" ->  { if(!INVENTORY_SYSTEM.getBinderNames().isEmpty()) handleViewBinder();
-                               else VIEW.showError("there are no binders found"); } // In case there are no binders left
+                case "2" ->  {
+                    if(!INVENTORY_SYSTEM.getBinderNames().isEmpty()) {
+                        handleViewBinder();
+                    } else {
+                        VIEW.showError("there are no binders found");
+                    }
+                } // In case there are no binders left
                 case "3" -> back = true;
                 default -> invalid();
             }
@@ -236,8 +284,13 @@ public class Controller {
             choice = prompt();
             switch (choice) {
                 case "1" -> handleCreateDeck();
-                case "2" -> { if(!INVENTORY_SYSTEM.getDeckNames().isEmpty()) handleViewDeck();
-                              else VIEW.showError("there are no decks found"); } // In case there are no decks left
+                case "2" -> {
+                    if(!INVENTORY_SYSTEM.getDeckNames().isEmpty()) {
+                        handleViewDeck();
+                    } else {
+                        VIEW.showError("there are no decks found");
+                    }
+                } // In case there are no decks left
                 case "3" -> back = true;
                 default -> invalid();
             }
@@ -250,11 +303,18 @@ public class Controller {
     private void handleViewBinder() {
         VIEW.showBinderNames(INVENTORY_SYSTEM.getBinderNames());
         String binderName = promptInput("select binder: ");
-        Binder curBinder = INVENTORY_SYSTEM.findBinderByName(binderName);
         boolean back = false;
         while (!back) {
-            boolean hasCard = !curBinder.getSortedCopy().isEmpty();
-            VIEW.showBinderMenu(binderName, hasCard);
+            boolean sellable = INVENTORY_SYSTEM.isBinderSellable(binderName);
+            boolean hasCard = !INVENTORY_SYSTEM.isBinderEmpty(binderName);
+            boolean isLuxury = INVENTORY_SYSTEM.isLuxuryBinder(binderName);
+            VIEW.showBinderMenu(binderName, hasCard, sellable, isLuxury);
+            if(sellable) {
+                VIEW.showMessage("binder's real value: $" + INVENTORY_SYSTEM.getBinderValue(binderName));
+            }
+            if(isLuxury) {
+                VIEW.showMessage("binder's set value: $" + INVENTORY_SYSTEM.getLuxuryBinderCustomPrice(binderName));
+            }
             String opt = prompt();
             if(hasCard) {
                 switch (opt) {
@@ -263,10 +323,49 @@ public class Controller {
                     case "3" -> tradeInBinder(binderName);
                     case "4" -> viewBinder(binderName);
                     case "5" -> {
-                        INVENTORY_SYSTEM.deleteBinder(binderName);
+                        if(VIEW.confirm("Are you sure you want to delete this binder? (yes/no): ")) {
+                            INVENTORY_SYSTEM.deleteBinder(binderName);
+                        }
                         back = true;
                     }
-                    case "6" -> back = true;
+                    case "6" -> {
+                        if(sellable) {
+                            if(isLuxury) {
+                                try {
+                                    BigDecimal currentValue = INVENTORY_SYSTEM.getBinderValue(binderName);
+                                    String inputVal = promptInput("Enter new custom price: $");
+                                    BigDecimal newValue = new BigDecimal(inputVal.trim());
+                                    if (newValue.compareTo(currentValue) > 0) {
+                                        INVENTORY_SYSTEM.setBinderPrice(binderName, newValue);
+                                        VIEW.showMessage("Custom price set successfully.");
+                                    } else {
+                                        VIEW.showMessage("Price must be greater than current binder value: $" + currentValue);
+                                    }
+                                } catch (Exception e) {
+                                    VIEW.showMessage("Failed to set custom price: " + e.getMessage());
+                                }
+
+                            } else {
+                                if (VIEW.confirm("Are you sure you want to sell this binder? (yes/no): ")) {
+                                    INVENTORY_SYSTEM.sellBinder(binderName);
+                                }
+                            }
+                        }
+                        back = true;
+                    }
+                    case "7" -> {
+                        if (sellable) {
+                            if(isLuxury) {
+                                if (VIEW.confirm("Are you sure you want to sell this binder? (yes/no): ")) {
+                                    INVENTORY_SYSTEM.sellBinder(binderName);
+                                }
+                            } else {
+                                back = true;
+                            }
+                        } else {
+                            invalid();
+                        }
+                    }
                     default -> invalid();
                 }
             } else { // if binder has no cards
@@ -290,21 +389,40 @@ public class Controller {
         VIEW.showDeckNames(INVENTORY_SYSTEM.getDeckNames());
         String deckName = promptInput("select deck: ");
         boolean back = false;
-        Deck curDeck = INVENTORY_SYSTEM.findDeckByName(deckName);
         while (!back) {
-            boolean hasCard = !curDeck.getCopyOfCards().isEmpty();
-            VIEW.showDeckMenu(deckName, hasCard);
+            boolean hasCard = !INVENTORY_SYSTEM.isDeckEmpty(deckName);
+            boolean sellable = INVENTORY_SYSTEM.isDeckSellable(deckName);
+            VIEW.showDeckMenu(deckName, hasCard, sellable);
+            if(sellable) {
+                VIEW.showMessage("deck value: $" + INVENTORY_SYSTEM.getDeckValue(deckName));
+            }
             String opt = prompt();
             if (hasCard) {
                 switch (opt) {
                     case "1" -> addCardToDeck(deckName);
-                    case "2" -> deleteCardFromDeck(deckName);
+                    case "2" -> removeCardFromDeck(deckName);
                     case "3" -> viewDeck(deckName);
                     case "4" -> {
-                        INVENTORY_SYSTEM.deleteDeck(deckName);
+                        if(VIEW.confirm("Are you sure you want to delete this deck? (yes/no): ")) {
+                            INVENTORY_SYSTEM.deleteDeck(deckName);
+                        }
                         back = true;
                     }
-                    case "5" -> back = true;
+                    case "5" -> {
+                        if(sellable) {
+                            if(VIEW.confirm("Are you sure you want to sell this deck (yes/no): ")) {
+                                INVENTORY_SYSTEM.sellDeck(deckName);
+                            }
+                        }
+                            back = true;
+                    }
+                    case "6" -> {
+                        if (sellable) {
+                            back = true;
+                        } else {
+                            invalid();
+                        }
+                    }
                     default -> invalid();
                 }
             } else { // if deck has no cards
@@ -400,9 +518,9 @@ public class Controller {
     /**
      * Remove a card from a deck back into the collection.
      */
-    private void deleteCardFromDeck(String deckName) {
+    private void removeCardFromDeck(String deckName) {
         String name = promptInput("card name: ");
-        INVENTORY_SYSTEM.deleteCardFromDeck(deckName, name);
+        INVENTORY_SYSTEM.removeCardFromDeck(deckName, name);
         VIEW.showMessage("removed from deck");
     }
 
@@ -422,6 +540,6 @@ public class Controller {
         } else {
             c = d.findByCardName(choice);
         }
-        VIEW.showCardDetails(c);
+        VIEW.showCardDetails(c.toString());
     }
 }

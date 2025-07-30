@@ -20,12 +20,22 @@ public class CollectorBinder extends Binder {
     }
 
     /**
+     * Indicates that this binder cannot be sold.
+     *
+     * @return {@code false} always, as Collector binders are not sellable
+     */
+    @Override
+    public boolean isSellable() {
+        return false;
+    }
+
+
+    /**
      * Adds a card to this binder if capacity allows and the card meets the rarity
      * and variant requirements: rarity must be rare or legendary, and variant must not be normal.
      *
      * @param card the {@link Card} to add
-     * @return {@code true} if the card was added; {@code false} if the binder is full
-     * @throws IllegalArgumentException if the card does not meet rarity or variant constraints
+     * @return {@code true} if the card was added; {@code false} if the binder is full, or card is not allowed in binder
      */
     @Override
     public boolean addCard(Card card) {
@@ -35,10 +45,7 @@ public class CollectorBinder extends Binder {
         Rarity rarity = card.getRarity();
         Variation variant = card.getVariation();
         if ((rarity != Rarity.RARE && rarity != Rarity.LEGENDARY) || variant == Variation.NORMAL) {
-            throw new IllegalArgumentException(
-                    String.format("Card %s [%s, %s] is not allowed in a collector binder",
-                            card.getName(), rarity, variant)
-            );
+            return false;
         }
         return CARDS.add(card);
     }

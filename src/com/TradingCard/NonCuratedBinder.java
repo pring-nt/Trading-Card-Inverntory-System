@@ -19,6 +19,17 @@ public class NonCuratedBinder extends Binder {
     }
 
     /**
+     * Indicates that this binder cannot be sold.
+     *
+     * @return {@code false} always, as non-curated binders are not sellable
+     */
+    @Override
+    public boolean isSellable() {
+        return false;
+    }
+
+
+    /**
      * Adds a card to this binder if capacity allows.
      * <p>
      * There are no restrictions on the card's rarity or variant.

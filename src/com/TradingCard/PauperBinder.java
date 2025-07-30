@@ -23,6 +23,16 @@ public class PauperBinder extends Binder implements Sellable {
     }
 
     /**
+     * Indicates that this binder can be sold.
+     *
+     * @return {@code true} always, as pauper binders are sellable
+     */
+    @Override
+    public boolean isSellable() {
+        return true;
+    }
+
+    /**
      * Adds a card to this binder if capacity allows and the card's rarity is either common or uncommon.
      *
      * @param card the {@link Card} to add
@@ -65,7 +75,9 @@ public class PauperBinder extends Binder implements Sellable {
     public BigDecimal getValue() {
         BigDecimal total = BigDecimal.ZERO;
         for (Card card : CARDS) {
-            total = total.add(card.getValue());
+            if(card != null) {
+                total = total.add(card.getValue());
+            }
         }
         return total;
     }
