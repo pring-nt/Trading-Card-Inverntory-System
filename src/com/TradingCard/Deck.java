@@ -10,10 +10,21 @@ import java.util.NoSuchElementException;
  * removing cards by name or index, and listing current cards.
  */
 public class Deck {
-    private static final int MAX_CAPACITY = 10; // maximum cards in a deck
+    /**
+     * The maximum number of cards allowed in a deck.
+     */
+    private static final int MAX_CAPACITY = 10;
 
-    private final String NAME;                // deck's identifier
-    protected final ArrayList<Card> CARDS;    // internal storage of cards
+    /**
+     * The unique identifier for this deck.
+     */
+    private final String NAME;
+
+    /**
+     * Internal list storing the cards contained in this deck.
+     */
+    protected final ArrayList<Card> CARDS;
+
 
     /**
      * Constructs a Deck with the specified name.

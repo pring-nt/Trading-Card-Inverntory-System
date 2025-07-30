@@ -14,8 +14,16 @@ import java.math.BigDecimal;
  * Handles user input, invokes model operations, and delegates display to the View.
  */
 public class Controller {
+    /**
+     * The View component handling all CLI input/output.
+     */
     private final View VIEW;
+
+    /**
+     * The core model instance for the enhanced Trading Card Inventory System.
+     */
     private final EnhancedTCIS INVENTORY_SYSTEM;
+
 
     /**
      * Constructs a Controller with the specified View and InventorySystem.

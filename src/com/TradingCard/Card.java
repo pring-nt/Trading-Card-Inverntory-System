@@ -12,10 +12,29 @@ import java.util.Objects;
  * manage the count of copies in the collection.
  */
 public class Card implements Sellable {
+    /**
+     * The unique name of the card.
+     */
     private final String NAME;
+
+    /**
+     * The rarity tier of the card (e.g. COMMON, RARE, LEGENDARY).
+     */
     private final Rarity RARITY;
+
+    /**
+     * The variation type of the card (e.g. NORMAL, FOIL).
+     */
     private final Variation VARIATION;
+
+    /**
+     * The card’s base monetary value.
+     */
     private final BigDecimal BASE_VALUE;
+
+    /**
+     * The number of copies of this card in the collection.
+     */
     private int count;
 
     /**

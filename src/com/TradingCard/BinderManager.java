@@ -9,8 +9,14 @@
      * Provides creation, deletion, selling, and card transfer functionality.
      */
     public class BinderManager {
+        /**
+         * The list of all binders currently tracked.
+         */
         private final ArrayList<Binder> BINDERS;
 
+        /**
+         * Constructs a new BinderManager with an empty binder list.
+         */
         public BinderManager() {
             this.BINDERS = new ArrayList<>();
         }
@@ -57,13 +63,13 @@
 
         /**
          * Sets a custom price for a binder with the given name, if it is a LuxuryBinder.
+         * This method only affects binders that are instances of {@code LuxuryBinder}.
+         * Non-luxury binders are ignored.
          *
          * @param name         the name of the binder
          * @param customPrice  the custom price to assign
          *
          * @throws NullPointerException if the binder does not exist
-         * @implNote This method only affects binders that are instances of {@code LuxuryBinder}.
-         *           Non-luxury binders are ignored.
          */
         public void setCustomPrice(String name, BigDecimal customPrice) {
             Binder b = findBinderByName(name);

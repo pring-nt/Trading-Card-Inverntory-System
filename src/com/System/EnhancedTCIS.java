@@ -12,6 +12,9 @@ import java.util.NoSuchElementException;
  * gained through all sales operations made through this instance.
  */
 public class EnhancedTCIS extends InventorySystem {
+    /**
+     * Used to store the user's earnings when selling cards, decks or binders.
+     */
     private BigDecimal collectorEarnings;
 
     /**

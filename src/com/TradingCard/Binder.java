@@ -11,10 +11,19 @@ import java.util.NoSuchElementException;
  * and retrieving a sorted view of contained cards.
  */
 public abstract class Binder {
-    /** maximum number of cards this binder can hold */
+    /**
+     * Maximum number of cards this binder can hold.
+     */
     protected static final int MAX_CAPACITY = 20;
 
+    /**
+     * The unique name/identifier of this binder.
+     */
     private final String NAME;
+
+    /**
+     * Internal list storing the cards contained in this binder.
+     */
     protected final ArrayList<Card> CARDS;
 
     /**

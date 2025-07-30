@@ -12,6 +12,9 @@ import java.util.*;
  * prompts the user for input. Contains no business logic.
  */
 public class View {
+    /**
+     * Scanner used for reading CLI input from the user.
+     */
     private final Scanner SC;
 
     /**
@@ -26,7 +29,7 @@ public class View {
      *
      * @param names the list of deck names to show
      */
-    public void showDeckNames(List<String> names) {
+    public void showDeckNames(ArrayList<String> names) {
         System.out.println("\n=== decks ===");
         for (String name : names) {
             System.out.println("  - " + name);
@@ -38,7 +41,7 @@ public class View {
      *
      * @param names the list of binder names to show
      */
-    public void showBinderNames(List<String> names) {
+    public void showBinderNames(ArrayList<String> names) {
         System.out.println("\n=== binders ===");
         for (String name : names) {
             System.out.println("  - " + name);
@@ -50,7 +53,7 @@ public class View {
      *
      * @param names the list of rarity names to show
      */
-    public void showRarityOptions(List<String> names) {
+    public void showRarityOptions(ArrayList<String> names) {
         System.out.println("\n=== rarities ===");
         for (String name : names) {
             System.out.println("  - " + name);
@@ -62,7 +65,7 @@ public class View {
      *
      * @param names the list of variation names to show
      */
-    public void showVariationOptions(List<String> names) {
+    public void showVariationOptions(ArrayList<String> names) {
         System.out.println("\n=== variations ===");
         for (String name : names) {
             System.out.println("  - " + name);
@@ -74,7 +77,7 @@ public class View {
      *
      * @param names the list of binder type names to show
      */
-    public void showBinderTypeOptions(List<String> names) {
+    public void showBinderTypeOptions(ArrayList<String> names) {
         System.out.println("\n=== binder types ===");
         for (String name : names) {
             System.out.println("  - " + name);
@@ -96,7 +99,7 @@ public class View {
      * @param collection the CardCollection to display
      */
     public void showCollection(CardCollection collection) {
-        List<Card> cards = collection.getSortedCopy();
+        ArrayList<Card> cards = collection.getSortedCopy();
         System.out.println("\n=== collection ===");
         for (Card card : cards) {
             System.out.println("  - card: " + card.getName() + ", count: " + card.getCount());
@@ -109,7 +112,7 @@ public class View {
      * @param deck the Deck to display
      */
     public void showDeck(Deck deck) {
-        List<Card> cards = deck.getCopyOfCards();
+        ArrayList<Card> cards = deck.getCopyOfCards();
         System.out.printf("%n=== deck: %s ===%n", deck.getName());
         int index = 1;
         for (Card card : cards) {
@@ -123,7 +126,7 @@ public class View {
      * @param binder the Binder to display
      */
     public void showBinder(Binder binder) {
-        List<Card> cards = binder.getSortedCopy();
+        ArrayList<Card> cards = binder.getSortedCopy();
         System.out.printf("%n=== binder: %s ===%n", binder.getName());
         for (Card card : cards) {
             System.out.println(card.getName());

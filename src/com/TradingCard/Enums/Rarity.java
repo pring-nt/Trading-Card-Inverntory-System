@@ -10,8 +10,15 @@ package com.TradingCard.Enums;
  * </ul>
  */
 public enum Rarity {
+    /** The most commonly printed cards. */
     COMMON,
+
+    /** Less common than COMMON, but not rare. */
     UNCOMMON,
+
+    /** Produced in limited quantities and harder to find. */
     RARE,
+
+    /** Extremely scarce, often highly valuable or promotional. */
     LEGENDARY
 }

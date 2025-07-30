@@ -15,8 +15,19 @@ import java.util.*;
  * All business logic for adding, removing, trading, and selling cards flows through this class.
  */
 public class InventorySystem {
+    /**
+     * The main collection of cards managed by the system.
+     */
     protected final CardCollection CARD_COLLECTION;
+
+    /**
+     * Manager responsible for creating and managing decks.
+     */
     protected final DeckManager DECK_MANAGER;
+
+    /**
+     * Manager responsible for creating and managing binders.
+     */
     protected final BinderManager BINDER_MANAGER;
 
     /**

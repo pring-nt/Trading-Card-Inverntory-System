@@ -11,7 +11,11 @@ import java.util.NoSuchElementException;
  * Supports adding, removing, searching, selling, and adjusting counts of cards.
  */
 public class CardCollection {
+    /**
+     * The list of all cards managed by this component.
+     */
     private final ArrayList<Card> CARDS;
+
 
     /**
      * Constructs an empty CardCollection.

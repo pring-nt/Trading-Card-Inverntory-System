@@ -10,8 +10,15 @@ package com.TradingCard.Enums;
  * </ul>
  */
 public enum Variation {
+    /** Standard card appearance. */
     NORMAL,
+
+    /** Card featuring extended artwork beyond the frame. */
     EXTENDED_ART,
+
+    /** Card printed as full‐art with minimal or no border. */
     FULL_ART,
+
+    /** Alternate artwork variant, often a special or promotional print. */
     ALT_ART
 }
